@@ -1,0 +1,677 @@
+import React, { useState, useEffect } from 'react';
+import { 
+  Terminal, Shield, FileText, Lock, Wifi, Activity, 
+  Database, AlertTriangle, User, Key, CheckCircle, 
+  XCircle, Globe, Cpu, Eye, Skull, Radio, ChevronUp, ChevronDown, UserPlus, Copy 
+} from 'lucide-react';
+
+const ASSETS = {
+  bgGif: "https://github.com/Bapoooossssaaaa/CLASSIFIED/blob/main/Untitled%20design%20(6).gif?raw=true", 
+  loginUiBg: "https://github.com/Bapoooossssaaaa/CLASSIFIED/blob/main/rac%20(8).png?raw=true", 
+  loginBgStatic: "https://github.com/Bapoooossssaaaa/CLASSIFIED/blob/main/Untitled%20design%20(34).png?raw=true",
+  raisaLogo: "https://github.com/Bapoooossssaaaa/CLASSIFIED/blob/main/rac%20(5).png?raw=true",
+  scpLogo: "https://github.com/Bapoooossssaaaa/CLASSIFIED/blob/main/rac%20(6).png?raw=true",
+  tfLogo: "https://github.com/Bapoooossssaaaa/CLASSIFIED/blob/main/Untitled%20design%20(31).png?raw=true",
+  uplinkLogo: "https://github.com/Bapoooossssaaaa/CLASSIFIED/blob/main/rac%20(9).png?raw=true",
+  portrait: "https://github.com/Bapoooossssaaaa/CLASSIFIED/blob/main/Screenshot%202025-12-14%20190136.png?raw=true",
+  watermark: "https://github.com/Bapoooossssaaaa/Kael-Nicholas-Charles-OC/blob/main/Logo_of_the_SCP_Foundation.png?raw=true",
+  morphMain: "https://github.com/Bapoooossssaaaa/CLASSIFIED/blob/main/Screenshot%202025-12-13%20215800.png?raw=true",
+  morphSec: "https://github.com/Bapoooossssaaaa/CLASSIFIED/blob/main/Screenshot%202025-12-14%20190136.png?raw=true",
+  morphDis: "https://github.com/Bapoooossssaaaa/CLASSIFIED/blob/main/Screenshot%202025-12-13%20230558.png?raw=true"
+};
+
+const BIOS_LINES = [
+  "SCiPnet BIOS v5.4.1 (Build 9924)",
+  "Copyright (c) 2025 Foundation Systems",
+  "Initializing Kernel...",
+  "Checking RAM... OK",
+  "Verifying Hardware Signatures... OK",
+  "Mounting Secure Volume [RAISA-CENTRAL]... OK",
+  "Bypassing Local Firewalls... DONE",
+  "Loading Encryption Modules (AES-4096)... SUCCESS",
+  "Establishing Uplink to Node [TF-RHAMEUS]...",
+  "Handshake Protocol: ENCRYPTED",
+  "Biometric Scan Required...",
+  "System Ready."
+];
+
+const App = () => {
+  const [screen, setScreen] = useState('boot');
+  const [bootProgress, setBootProgress] = useState(0);
+  const [bootText, setBootText] = useState("Initializing...");
+  const [biosLines, setBiosLines] = useState([]);
+  
+  const [loginUser, setLoginUser] = useState("");
+  const [loginPass, setLoginPass] = useState("");
+  const [authStatus, setAuthStatus] = useState("");
+
+  const CORRECT_CODE = [0, 5, 0, 3];
+  const [inputCode, setInputCode] = useState([0, 0, 0, 0]);
+  
+  const [activeTab, setActiveTab] = useState('overview');
+  const [modalContent, setModalContent] = useState(null);
+  
+  const [copiedId, setCopiedId] = useState(null);
+
+  useEffect(() => {
+    if (screen === 'boot') {
+      const runBoot = async () => {
+        const wait = (ms) => new Promise(r => setTimeout(r, ms));
+        await wait(2000);
+        setBootProgress(10); setBootText("Initializing Hardware...");
+        await wait(2500);
+        setBootProgress(30); setBootText("Verifying Handshake...");
+        await wait(2500);
+        setBootProgress(50); setBootText("Establishing Secure Tunnel...");
+        await wait(3000);
+        setBootProgress(75); setBootText("Encrypting Traffic...");
+        await wait(2500);
+        setBootProgress(100); setBootText("Connected.");
+        await wait(2000);
+        setScreen('bios');
+      };
+      runBoot();
+    }
+  }, [screen]);
+
+  useEffect(() => {
+    if (screen === 'bios') {
+      let delay = 0;
+      BIOS_LINES.forEach((line, i) => {
+        delay += Math.random() * 800 + 500;
+        setTimeout(() => {
+          setBiosLines(prev => [...prev, line]);
+          if (i === BIOS_LINES.length - 1) {
+            setTimeout(() => setScreen('login'), 3000);
+          }
+        }, delay);
+      });
+    }
+  }, [screen]);
+
+  useEffect(() => {
+    if (screen === 'login') {
+      const typeLogin = async () => {
+        const wait = (ms) => new Promise(r => setTimeout(r, ms));
+        await wait(1500);
+        const user = "O5-3_ADMIN_OVERRIDE";
+        for (let i = 0; i <= user.length; i++) {
+          setLoginUser(user.substring(0, i));
+          await wait(100);
+        }
+        await wait(1000);
+        const pass = "*********";
+        for (let i = 0; i <= pass.length; i++) {
+          setLoginPass(pass.substring(0, i));
+          await wait(100);
+        }
+        setAuthStatus("WAITING FOR AUTHORIZATION...");
+      };
+      typeLogin();
+    }
+  }, [screen]);
+
+  useEffect(() => {
+    if (screen === 'auth') {
+      const isMatch = inputCode.every((digit, i) => digit === CORRECT_CODE[i]);
+      if (isMatch) {
+        setTimeout(() => setScreen('file'), 1000);
+      }
+    }
+  }, [inputCode, screen]);
+
+  const handleAuthorize = () => {
+    setAuthStatus("AUTHENTICATING...");
+    setTimeout(() => setScreen('db'), 2500);
+  };
+  
+  const adjustDigit = (index, delta) => {
+    setInputCode(prev => {
+      const newCode = [...prev];
+      newCode[index] = (newCode[index] + delta + 10) % 10;
+      return newCode;
+    });
+  };
+
+  const handleCopy = (id, text) => {
+    const textarea = document.createElement('textarea');
+    textarea.value = text.trim();
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+    
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const TopBar = ({ title, logo = ASSETS.raisaLogo }) => (
+    <div className="absolute top-0 left-0 w-full h-12 flex items-center justify-between px-6 bg-red-900 border-b border-white text-white z-50 font-mono">
+      <div className="flex items-center tracking-widest font-bold">
+        <img src={logo} className="h-8 w-8 mr-3" alt="logo" />
+        {title}
+      </div>
+      <div className="text-sm opacity-90">SECURE CONNECTION</div>
+    </div>
+  );
+
+  const DataGrid = ({ data }) => (
+    <div className="grid grid-cols-[180px_1fr] gap-2 bg-gray-100 border border-gray-400 p-4 mb-4 text-sm font-mono text-black">
+      {Object.entries(data).map(([key, value]) => (
+        <React.Fragment key={key}>
+          <div className="font-bold text-gray-800 text-right pr-4 uppercase border-r border-gray-400">{key}</div>
+          <div className="pl-2">{value}</div>
+        </React.Fragment>
+      ))}
+    </div>
+  );
+
+  return (
+    <div className="w-full h-screen font-mono relative overflow-hidden text-white bg-black" style={{ fontFamily: '"Courier New", Courier, monospace' }}>
+      
+      <img 
+        src={ASSETS.bgGif} 
+        className="absolute inset-0 w-full h-full object-cover z-0 opacity-50" 
+        alt="Main Background"
+      />
+
+      {screen === 'login' && (
+        <img 
+          src={ASSETS.loginBgStatic} 
+          className="absolute inset-0 w-full h-full object-cover z-10 opacity-80" 
+          alt="Dots"
+        />
+      )}
+
+      {modalContent && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4">
+          <div className="bg-white text-black border-4 border-red-800 w-full max-w-lg p-6 relative">
+             <button onClick={() => setModalContent(null)} className="absolute top-2 right-4 text-2xl font-bold text-gray-400 hover:text-red-600">&times;</button>
+             <h3 className="text-xl font-bold text-red-800 border-b-2 border-gray-300 mb-4 pb-2 uppercase">
+               {modalContent.title}
+             </h3>
+             <p className="text-lg leading-relaxed whitespace-pre-line font-mono">{modalContent.desc}</p>
+          </div>
+        </div>
+      )}
+
+      {screen === 'boot' && (
+        <div className="relative z-20 flex flex-col items-center justify-center h-full bg-black/90">
+           <img src={ASSETS.uplinkLogo} className="w-32 h-32 mb-8" alt="Uplink" />
+           <h1 className="text-3xl font-bold tracking-widest mb-6 text-white text-center">TERMINAL REMOTE UPLINK PROCESS</h1>
+           <div className="w-[400px] h-2 bg-gray-800 border border-white">
+              <div className="h-full bg-white transition-all duration-200" style={{ width: `${bootProgress}%` }}></div>
+           </div>
+           <div className="mt-4 text-white tracking-widest">{bootText}</div>
+        </div>
+      )}
+
+      {screen === 'bios' && (
+        <div className="relative z-20 p-12 h-full flex flex-col justify-start items-start text-white bg-black">
+          <div className="max-w-4xl">
+            {biosLines.map((line, i) => (
+              <div key={i} className="mb-2 text-xl font-bold tracking-wide text-white">
+                <span className="mr-2 opacity-50 text-white">&gt;</span>{line}
+              </div>
+            ))}
+            <div className="w-3 h-5 bg-white mt-2"></div>
+          </div>
+        </div>
+      )}
+
+      {screen === 'login' && (
+        <div className="relative z-20 w-full h-full flex flex-col items-center justify-center">
+          <TopBar title="SCiPnet SECURE GATEWAY" />
+          
+          <div 
+            className="w-[800px] h-[550px] p-12 flex flex-col items-center relative"
+            style={{ 
+              backgroundImage: `url(${ASSETS.loginUiBg})`, 
+              backgroundSize: '100% 100%',
+              backgroundRepeat: 'no-repeat'
+            }}
+          >
+             <div className="flex flex-col items-center mb-6 w-full border-b border-gray-500 pb-4">
+                <img src={ASSETS.raisaLogo} className="w-20 h-20 mb-2" alt="RAISA" />
+                <h1 className="text-4xl font-bold tracking-widest text-white uppercase">SCiPnet</h1>
+                <p className="text-sm tracking-[0.4em] uppercase mt-1 text-gray-300">Secure Access Terminal</p>
+             </div>
+
+             <div className="w-full max-w-md space-y-4">
+                <div>
+                   <label className="block text-xs uppercase font-bold mb-1 tracking-widest text-gray-300">Personnel ID</label>
+                   <input type="text" value={loginUser} readOnly className="w-full bg-black/40 border border-gray-400 p-3 text-lg font-bold text-white focus:outline-none" />
+                </div>
+                <div>
+                   <label className="block text-xs uppercase font-bold mb-1 tracking-widest text-gray-300">Passphrase</label>
+                   <input type="password" value={loginPass} readOnly className="w-full bg-black/40 border border-gray-400 p-3 text-lg font-bold text-white focus:outline-none" />
+                </div>
+                <button 
+                  onClick={handleAuthorize} 
+                  className="w-full bg-white text-black font-bold py-3 text-xl tracking-[0.2em] hover:bg-gray-200 transition-colors mt-4 border border-gray-400"
+                >
+                   AUTHORIZE
+                </button>
+                <div className="h-6 text-center text-white font-bold tracking-widest mt-2">{authStatus}</div>
+             </div>
+          </div>
+        </div>
+      )}
+
+      {screen === 'db' && (
+        <div className="relative z-20 w-full h-full pt-12 flex items-center justify-center bg-black/80">
+           <TopBar title="OFFICE OF RAISA // PERSONNEL DOSSIER SHEET" />
+           
+           <div className="w-[90%] h-[85%] bg-black border border-white flex flex-col">
+              <div className="bg-gray-900 border-b border-white p-4 flex justify-between items-center">
+                 <div className="flex items-center gap-2 tracking-widest text-white"><Database size={16} /> DIRECTORY LISTING: /ROOT/RAISA/PERSONNEL/</div>
+                 <div className="text-green-500 font-bold text-xs uppercase">Connected</div>
+              </div>
+              
+              <div className="p-8 overflow-y-auto flex-1 grid grid-cols-1 gap-2">
+                 {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="flex justify-between p-4 border border-gray-700 bg-gray-800 text-gray-500 cursor-not-allowed">
+                       <span className="flex items-center gap-4"><FileText size={16} /> FILE_CORRUPTED_{1000 + i}.tmp</span>
+                       <span className="text-xs uppercase">[UNREADABLE]</span>
+                    </div>
+                 ))}
+                 
+                 <div 
+                   onClick={() => setScreen('auth')}
+                   className="flex justify-between p-4 border border-yellow-500 bg-yellow-900/20 text-yellow-500 cursor-pointer hover:bg-yellow-900/40 hover:pl-6 transition-all"
+                 >
+                    <div className="flex items-center gap-4 font-bold tracking-widest">
+                       <Lock size={16} />
+                       CLASSIFIED DOSSIER: "RHAMEUS-01"
+                    </div>
+                    <span className="border border-yellow-500 px-2 text-xs font-bold">[L5 CLEARANCE REQ]</span>
+                 </div>
+
+                 {Array.from({ length: 8 }).map((_, i) => (
+                    <div key={i+10} className="flex justify-between p-4 border border-gray-700 bg-gray-800 text-gray-500 cursor-not-allowed">
+                       <span className="flex items-center gap-4"><FileText size={16} /> SYS_LOG_{8000 + i}.log</span>
+                       <span className="text-xs uppercase">[ARCHIVED]</span>
+                    </div>
+                 ))}
+              </div>
+           </div>
+        </div>
+      )}
+
+      {screen === 'auth' && (
+        <div className="relative z-20 w-full h-full flex flex-col items-center justify-center bg-black/90">
+           <TopBar title="SECURITY CLEARANCE CHECK" />
+           
+           <div className="bg-black border-2 border-red-600 p-12 text-center max-w-2xl w-full">
+              <img src={ASSETS.raisaLogo} className="w-24 h-24 mx-auto mb-6" alt="RAISA" />
+              <h2 className="text-3xl font-bold text-white tracking-[0.2em] mb-4">SECURITY OVERRIDE</h2>
+              <p className="text-gray-400 font-mono mb-12 uppercase tracking-widest">Enter O5-3 Authorization Code</p>
+              
+              <div className="flex justify-center gap-8 mb-12">
+                 {inputCode.map((digit, i) => (
+                   <div key={i} className="flex flex-col items-center gap-2">
+                      <button onClick={() => adjustDigit(i, 1)} className="text-gray-400 hover:text-white"><ChevronUp /></button>
+                      <div className={`
+                         w-16 h-20 flex items-center justify-center text-4xl font-bold border-2 
+                         ${digit === CORRECT_CODE[i] ? 'border-green-500 text-green-500 bg-green-900/20' : 'border-gray-600 text-white bg-gray-900'}
+                      `}>
+                         {digit}
+                      </div>
+                      <button onClick={() => adjustDigit(i, -1)} className="text-gray-400 hover:text-white"><ChevronDown /></button>
+                   </div>
+                 ))}
+              </div>
+
+              <div className="text-red-500 font-bold tracking-widest text-xs uppercase">
+                 Unauthorized access attempt will alert TF-RHAMEUS immediately
+              </div>
+           </div>
+        </div>
+      )}
+
+      {screen === 'file' && (
+        <div className="relative z-20 w-full h-full pt-12 flex flex-col bg-white text-black">
+           <TopBar title="PERSONNEL DOSSIER VIEW" color="bg-red-900" />
+           
+           <div className="flex-1 flex overflow-hidden max-w-[1600px] mx-auto w-full border-x border-gray-300">
+              <div className="w-80 bg-gray-100 border-r border-gray-300 p-6 flex flex-col items-center overflow-y-auto">
+                 <div className="w-full aspect-[3/4] bg-gray-300 mb-4 border-4 border-black relative">
+                    <img src={ASSETS.portrait} className="w-full h-full object-cover" alt="Ronin" />
+                    <div className="absolute bottom-0 w-full bg-red-800 text-white text-center text-xs font-bold py-1">CLASSIFIED</div>
+                 </div>
+                 <h2 className="text-2xl font-bold uppercase tracking-tighter mb-1">Ronin</h2>
+                 <div className="bg-red-900 text-white text-xs font-bold py-1 px-4 w-full mb-8 text-center">TF-RHAMEUS-01</div>
+                 
+                 <div className="w-full text-left space-y-2 text-xs font-mono border-t border-gray-300 pt-4">
+                    <p><strong>NAME:</strong> Aziel Fenwick</p>
+                    <p><strong>ALIAS:</strong> Kenjiro Reid</p>
+                    <p><strong>DOB:</strong> Sept 14, 1996</p>
+                    <p><strong>CLEARANCE:</strong> [CL-V]</p>
+                 </div>
+              </div>
+
+              <div className="flex-1 flex flex-col bg-white relative">
+                 <img src={ASSETS.watermark} className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] opacity-10 pointer-events-none grayscale" alt="watermark" />
+
+                 <div className="flex border-b border-red-800 bg-gray-200 overflow-x-auto relative z-10">
+                    {[
+                      { id: 'overview', label: 'Overview' },
+                      { id: 'backstory', label: 'Backstory' },
+                      { id: 'incident', label: 'Incident' },
+                      { id: 'interview', label: 'Interview' },
+                      { id: 'abilities', label: 'Abilities' },
+                      { id: 'morph', label: 'Morph' },
+                      { id: 'ir4001', label: 'IR-4001' },
+                    ].map(tab => (
+                       <button
+                         key={tab.id}
+                         onClick={() => setActiveTab(tab.id)}
+                         className={`px-6 py-3 text-sm font-bold uppercase tracking-wide border-r border-gray-300 whitespace-nowrap ${activeTab === tab.id ? 'bg-white text-red-900' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
+                       >
+                         {tab.label}
+                       </button>
+                    ))}
+                 </div>
+
+                 <div className="flex-1 overflow-y-auto p-10 font-sans text-gray-900 leading-relaxed text-sm relative z-10">
+                    
+                    {activeTab === 'overview' && (
+                       <div>
+                          <div className="flex items-center gap-6 mb-6 pb-6 border-b-2 border-red-900">
+                             <img src={ASSETS.tfLogo} className="h-24 w-24" alt="TF Logo" />
+                             <div>
+                                <h1 className="text-3xl font-bold text-red-900 uppercase">[Task Force - RHAMEUS]</h1>
+                                <h2 className="text-xl font-bold text-black uppercase mt-1">Designation "Dead Man's Grasp"</h2>
+                             </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-8 mb-8">
+                             <div>
+                                <h3 className="font-bold border-b border-gray-400 mb-2">Core Identity</h3>
+                                <DataGrid data={{
+                                   "True Name": "Aziel Fenwick",
+                                   "Current": "Kenjiro \"Ronin\" Reid",
+                                   "Codename": "\"Ronin\"",
+                                   "Occupation": "Personal Task Force Office of O5-3, Senior Agent",
+                                   "Clearance": "[CL-V]"
+                                }} />
+                             </div>
+                             <div>
+                                <h3 className="font-bold border-b border-gray-400 mb-2">Physical Stats</h3>
+                                <DataGrid data={{
+                                   "Height": "6'4",
+                                   "Weight": "204",
+                                   "Eyes": "Blue",
+                                   "Age": "29",
+                                   "Ethnicity": "Caucasian / American",
+                                   "Descent": "Asian American"
+                                }} />
+                             </div>
+                          </div>
+
+                          <h3 className="font-bold border-b border-gray-400 mb-4 mt-8 uppercase">Perks & Loadout</h3>
+                          <div className="flex flex-wrap gap-2">
+                             {[
+                               { title: "Detain Tool", desc: "Protection of O5-3 permits a detain tool, If He has a detain zone or etc. or RK Zone" },
+                               { title: "Protection of O5-3", desc: "Self Explanatory" },
+                               { title: "Level-5 Clearance", desc: "ONLY WHEN OPERATING AS [ TF - R ]" },
+                               { title: "Disguise Protocol", desc: "Personnel is allowed to be disguised when not on duty to conceal identity. Operate under less important personnel to site operations to be safe.\n\nPROTOCOL ADVISORY: Utilize Human Instinct and run at the sight of danger. Survival is paramount unless ordered otherwise." },
+                               { title: "Tag Classification", desc: "(ONLY WHEN OPERATING AS [ TF - R ]) Permitted by Tatum. RTAG is allowed to be hidden for OPSEC." }
+                             ].map((p, i) => (
+                                <button key={i} onClick={() => setModalContent(p)} className="bg-red-900 text-white px-4 py-2 text-sm font-bold uppercase hover:bg-black">
+                                   {p.title}
+                                </button>
+                             ))}
+                          </div>
+                       </div>
+                    )}
+
+                    {activeTab === 'backstory' && (
+                       <div className="space-y-6 text-justify">
+                          <h2 className="text-xl font-bold text-gray-800 border-b-2 border-gray-300 pb-2">Backstory</h2>
+                          <p>Aziel Fenwick, now known as Kenjiro Reid, was born on <span className="bg-yellow-200 px-1 font-bold">September 14, 1996</span>. His parents are known as Thomas Fenwick and Elaine Fenwick. Aziel’s father, Thomas, was shot in the head three years after Aziel’s birth on the way home from work. By whom or why is unknown; no files could be found, and local police closed the case due to lack of evidence. That incident left his mother to raise him alone for a few years until she found a new love interest, William Reeves, who became his stepfather. Aziel came to like him as he grew up; he wasn’t that bad of a guy. As Aziel aged, Reeves brought him more and more knowledge and stories of his life, constructing a strong bond between them.</p>
+                          <p>By 2010, Aziel attended Manchester Central High School, graduating in <span className="bg-yellow-200 px-1 font-bold">2014</span> following a pretty average school life, notably becoming a part of the Varsity Wrestling team and becoming Captain in his senior year. He didn’t see much interest in college, instead opting to enlist in the United States Military on <span className="bg-yellow-200 px-1 font-bold">June 20, 2014</span>, six days after graduation with a parental waiver as he was still 17. MEPS was a bit tough, but given his wrestling background and his stepfather’s knowledge, he was already disciplined enough to make it through pretty well. He was put in 11X, 75th Ranger Regiment, 1st Battalion, with a 4-year contract. His stepfather was quite proud of him for that and bought him a VP9 as a present, ready for him when he finished his contract. He saw around four deployments during his contract, and every one of them went without flaw.</p>
+                          
+                          <div className="bg-gray-100 p-4 border border-gray-400">
+                             <strong className="block mb-2 text-gray-900">Operation-based awards:</strong>
+                             <ul className="list-disc list-inside">
+                                <li>Afghanistan Campaign Medal (ACM): With 2 Campaign Stars.</li>
+                                <li>Inherent Resolve Campaign Medal (IRCM): With 1 Campaign Star.</li>
+                                <li>Global War on Terrorism Service Medal.</li>
+                                <li>National Defense Service Medal.</li>
+                                <li>Army Good Conduct Medal.</li>
+                                <li>NATO Medal (Resolute Support).</li>
+                                <li>Valorous Unit Award.</li>
+                             </ul>
+                          </div>
+
+                          <p>By <span className="bg-yellow-200 px-1 font-bold">June 2018</span>, he was honorably discharged at the end of his contract at the rank of E-5. After the military, he visited his father, who gave him his present; Aziel hugged him and said he was glad to see his father again. He lived with his parents after his service and began looking for different work. He had not found any yet, but he was surely looking. His parents weren’t as tough on him for living with them, given his service and their joy for him to be back, but he didn’t care as he didn’t want to be there.</p>
+                          <p>Two months after his deployment, he was in Boston for one of President Julian Mosswell’s speeches. During this time, he identified a radicalized domestic terrorist posing as Secret Service attempting to assassinate President Mosswell. Before the Secret Service could react themselves, he saw the drawing of the pistol before they did. He quickly pulled out the gun his father gave him, took aim, and shot the guy right in the head from an estimated 100ft away. He was tackled by police afterwards and detained. During this time, they also identified the dead Secret Service member as not being an actual member of the Secret Service, and Aziel was released into Secret Service custody. The President was very graceful and publicly gave him the highest civilian decoration, the Medal of Freedom, which brought him fame. A little bit afterwards, he was contacted by the Secret Service and offered a job with them given his excellent eyes that saved the President’s life before they could even react. He was then put into FLETC in <span className="bg-yellow-200 px-1 font-bold">January of 2019</span>, finished in <span className="bg-yellow-200 px-1 font-bold">July of 2019</span>, and assigned as a member of the Presidential Protective Division as a member of the Counter Assault Team, serving up until the incident in <span className="bg-yellow-200 px-1 font-bold">November of 2023</span>.</p>
+                       </div>
+                    )}
+
+                    {activeTab === 'incident' && (
+                       <div className="space-y-6 text-justify">
+                          <h2 className="text-xl font-bold text-red-900 border-b-2 border-red-900 pb-2">The Incident</h2>
+                          <p>On <span className="bg-yellow-200 px-1 font-bold">November 22, 2023</span>, <strong>SCP–668</strong> somehow made it into the hand of a terrorist. They were near Camp David at the time, and their hatred of President Mosswell being in his second term made him a primary target. The terrorist was able to breach the perimeter unharmed, unable to be stopped by the agents affected by the apathy field, despite the fact they were aware of the horror happening. For some reason or another, Aziel too was affected by the apathy field, but he was able to resist the anomaly’s effects. Just before the unidentified terrorist wielding SCP-668 made it to the Lodge’s door, Aziel was able to resist the anomaly's effects enough to put two shots in the terrorist, causing him to drop the knife and cease the effects. No agent there dared pick up the knife. Foundation Agents from MTF Eta-10 responded shortly after to contain the knife and treat everyone there with amnestics, including the POTUS.</p>
+                          
+                          <h2 className="text-xl font-bold text-gray-800 mt-6 border-b border-gray-300 pb-1">Recruitment & Recovery</h2>
+                          <p>They didn’t give Aziel amnestics, instead taking him in with the knife for questioning regarding his resistance to SCP-668’s effects, as it was deemed previously difficult. However, during the attempted questioning, Aziel had to be medicalized as he showed signs of mental instability. He was treated by Foundation Medical Staff who noted his Psionic Resistance Index was irregularly heightened. He was in the Medbay for a week before being discharged after he calmed down and returned to normal.</p>
+                          <p>During his medical stay, the Foundation was able to gather everything about his identity and create a cover-up story of his death in a severe vehicular accident late on the night of November 22, 2023, while traveling home alone on a remote stretch of highway after leaving the Camp David area. The car hit so hard it caught fire and burned long before authorities or anyone caught word of it, so his remains couldn’t be ID’ed back to him. He was presented with a new identity after his recovery and was informed he couldn’t go back into society as his anomalous traits were too much of an information risk to be released into the public. He was saddened by this, but they said he either complies or they can attempt to remove his anomalous effects, which had a high chance of death. He chose to comply.</p>
+                          <p>He was then interviewed by Dr. Karrosyn and tested further regarding his anomalous mental resistance. It was determined that he was able to resist cognitohazardous anomalies but suffered mental instability after the fact. For this reason, he was put into Eta-10 but assigned a Field Medic at all times to administer medication to lessen the effects enough for transfer back to the facility where he’d recover. The recovery process usually didn’t take as long as his first encounter but was still too much for the Foundation to send him on multiple Eta-10 operations. Thus, he was only brought in when absolutely necessary. He served on a few Eta-10 operations during his service for over a year, and the Foundation was able to construct and train him on the use of an experimental injection that he could administer himself. It worked most of the time; other times he went unconscious and had to be carried instead of going himself.</p>
+                          <p>O5-3, the Director of RAISA, caught word of this new Eta-10 Agent when he was going through anomalous personnel files, and his file intrigued him. O5-3 at the time had been constructing a Personal Task Force known as [Task Force - RHAMEUS] to operate under his command and aid in his protection, mostly made up of Alpha-1 Agents. O5-3 had him bagged and transported by Alpha-1 to Site-01, and in his office, he offered him a job within the Task Force.</p>
+                       </div>
+                    )}
+
+                    {activeTab === 'interview' && (
+                       <div className="bg-black text-white p-12 h-full overflow-y-auto" style={{ fontFamily: '"Courier New", Courier, monospace', fontSize: '1.25rem' }}>
+                          <div className="space-y-6">
+                             <p><strong className="text-red-500">A-1:</strong> “Sir, we brought the guy you requested. He was quite startled, so we had to sedate him.” <span className="text-gray-400 italic">The operative stood at attention.</span></p>
+                             
+                             <p><strong className="text-white">O5-3:</strong> “Alright. Wake him.”</p>
+                             
+                             <p><strong className="text-red-500">A-1:</strong> “Yes, Sir.” <span className="text-gray-400 italic">The operative applied the handheld taser directly to Aziel's side. (BZZT! Aziel jolted violently in the chair.)</span></p>
+                             
+                             <p><strong className="text-blue-400">R:</strong> “GAH! What the hell... Where am I? Who are you?!” <span className="text-gray-400 italic">Aziel’s eyes snapped open, fighting the residual sedation.</span></p>
+                             
+                             <p><strong className="text-white">O5-3:</strong> “I'll tell you. Just relax. You're in good hands. Alpha, take that bag off his head.”</p>
+                             
+                             <p><strong className="text-red-500">A-1:</strong> “Yes, Sir.” <span className="text-gray-400 italic">The operative moved quickly, removing the hood.</span></p>
+                             
+                             <p><strong className="text-white">O5-3:</strong> “Welcome to my office, and Site-01. My name is O5-3, Director of RAISA. I've heard many things about you, Kenjiro, or shall I say... Aziel.” <span className="text-gray-400 italic">O5-3 leaned back, watching Aziel.</span></p>
+                             
+                             <p><strong className="text-blue-400">R:</strong> “You know my name?” <span className="text-gray-400 italic">Aziel blinked slowly, recovering.</span></p>
+                             
+                             <p><strong className="text-white">O5-3:</strong> “What? Surprised RAISA doesn't know everything about you?”</p>
+                             
+                             <p><strong className="text-blue-400">R:</strong> “A little.”</p>
+                             
+                             <p><strong className="text-white">O5-3:</strong> “I know plenty about you: who you are, your childhood, your mom, your stepdad, even your biological father.”</p>
+                             
+                             <p><strong className="text-blue-400">R:</strong> "Don't you talk about him!” <span className="text-gray-400 italic">Aziel tensed, leaning forward in the chair.</span></p>
+                             
+                             <p><strong className="text-white">O5-3:</strong> “Calm down, calm down. I don't care about your past right now, just your future.”</p>
+                             
+                             <p><strong className="text-blue-400">R:</strong> “What are you, a psychic...?” <span className="text-gray-400 italic">Aziel delivered the line with a dry, sarcastic tone.</span></p>
+                             
+                             <p><strong className="text-white">O5-3:</strong> “In ways, I can influence... certain things to happen in my favor... I take it, though, you haven't the faintest clue of who we are. But you will know who I am.” <span className="text-gray-400 italic">O5-3 smiled faintly.</span></p>
+                             
+                             <p><strong className="text-blue-400">R:</strong> “What are you proposing...?”</p>
+                             
+                             <p><strong className="text-white">O5-3:</strong> “Employment. You see, I have this Task Force I'm crafting for my personal needs... and I want you to become a part of it.”</p>
+                             
+                             <p><strong className="text-blue-400">R:</strong> "What's in it for me?”</p>
+                             
+                             <p><strong className="text-white">O5-3:</strong> “Level-5 Clearance, power, back to old roots. You'll be my Secret Service.”</p>
+                             
+                             <p><strong className="text-blue-400">R:</strong> “That’s it...?”</p>
+                             
+                             <p><strong className="text-white">O5-3:</strong> “Perhaps I can have your ability trained. Strengthened. I and the Council have our fair share of our own. Think of me as your mentor.”</p>
+                             
+                             <p><strong className="text-blue-400">R:</strong> “Fair enough. Fine, I'll do it.” <span className="text-gray-400 italic">Aziel nodded, resignation in his posture.</span></p>
+                             
+                             <p><strong className="text-white">O5-3:</strong> “Excellent. Alpha, escort him to my armory and give him some new clothes and gear, and then bring him to Commander Uriel. I sense this one will be out of training within a week. Until then, he does not leave this site.”</p>
+                             
+                             <p><strong className="text-red-500">A-1:</strong> “Yes, Sir. C'mon.” <span className="text-gray-400 italic">The Alpha-1 operative gestured sharply toward the door.</span></p>
+                             
+                             <p><strong className="text-white">O5-3:</strong> “One last thing... Keep your identity concealed from now on. If you want to continue your testing, you'll be put on Class-E. Do not use your ability while your identity is concealed. I have this kill switch in case you can't control it, and it should knock out the ability temporarily. I suggest you treat it like any other Foundation staff after that and run if you wish to live.”</p>
+                             
+                             <div className="text-center font-bold mt-8 border-t border-gray-600 pt-4">[END LOG]</div>
+                             
+                             <p className="mt-4 italic text-gray-300">Over the following week, Ronin trained with Commander Uriel. Training and being tested focused on O5-3’s protection, first-aid protocols, Rules of Engagement, Information Security, and slight ability control. All of which he performed well in. He was officially made a member of RHAMEUS and given Level-5 Clearance and a Cognito-ID Transmitter.</p>
+                          </div>
+                       </div>
+                    )}
+
+                    {activeTab === 'abilities' && (
+                       <div className="space-y-6">
+                          <h2 className="text-xl font-bold text-gray-800 border-b-2 border-gray-300 pb-2">Psionic Resistance Index</h2>
+                          
+                          <div className="bg-red-50 border-2 border-red-500 p-4 mb-4">
+                             <div className="flex items-center gap-2 mb-2">
+                                <Activity className="text-red-600" />
+                                <strong className="text-red-900 text-lg uppercase">Ability Kill Switch</strong>
+                             </div>
+                             <p className="text-red-800">Kills Anomalous Ability using Dampening Technology which nullifies ability. <span className="font-bold">Not recommended for Over-Extensive use.</span></p>
+                          </div>
+
+                          <div className="flex border border-gray-300 bg-gray-50">
+                             <div className="w-32 bg-gray-200 p-4 font-bold flex items-center justify-center text-center text-xs text-gray-400">TIER I<br/>(SKIPPED)</div>
+                             <div className="p-4 flex-1">
+                                <strong className="block text-gray-800">Unstable Resistance</strong>
+                                <span className="text-sm text-gray-600">The user can resist mild to moderate mental influence for 10–30 seconds.</span>
+                                <div className="mt-2 text-xs font-bold text-red-600">LIMITATION: Mental Collapse. Usage causes immediate mental instability or unconsciousness.</div>
+                                <div className="text-xs text-gray-500 mt-1">MEDBAY: YES | COOLDOWN: 2 Hours</div>
+                             </div>
+                          </div>
+
+                          <div className="flex border-2 border-blue-600 bg-blue-50 relative">
+                             <div className="absolute top-0 right-0 bg-blue-600 text-white text-xs font-bold px-2">CURRENT</div>
+                             <div className="w-32 bg-blue-100 p-4 font-bold flex items-center justify-center text-center text-xs text-blue-900">TIER II<br/>(ACTIVE)</div>
+                             <div className="p-4 flex-1">
+                                <strong className="block text-blue-900">Refined Resistance</strong>
+                                <span className="text-sm text-gray-800">hardened by Eta-10 training and experimental injectors. He can resist moderate hazards for 1–2 minutes and maintain tactical awareness.</span>
+                                <div className="mt-2 text-xs font-bold text-red-600">LIMITATION: Severe Disorientation. Usage causes migraines, nosebleeds, and blurred vision. You remain conscious but are significantly weakened.</div>
+                                <div className="text-xs text-gray-500 mt-1">MEDBAY: YES (Stabilizer Required) | COOLDOWN: 1 Hour</div>
+                             </div>
+                          </div>
+
+                          <div className="flex border border-green-300 bg-green-50">
+                             <div className="w-32 bg-green-100 p-4 font-bold flex items-center justify-center text-center text-xs text-green-900">TIER III<br/>(GOAL)</div>
+                             <div className="p-4 flex-1">
+                                <strong className="block text-green-900">Advanced Resistance</strong>
+                                <span className="text-sm text-gray-800">The highest practical expression. He can withstand potent influence for 5+ minutes and function efficiently in combat.</span>
+                                <div className="mt-2 text-xs font-bold text-gray-600">LIMITATION: Combat Fatigue. Usage results in lingering headaches and irritability, but no incapacitating effects.</div>
+                                <div className="text-xs text-gray-500 mt-1">MEDBAY: NO | COOLDOWN: 30 Minutes</div>
+                             </div>
+                          </div>
+                       </div>
+                    )}
+
+                    {activeTab === 'morph' && (
+                       <div className="space-y-8">
+                          <h2 className="text-xl font-bold text-gray-800 border-b-2 border-gray-300 pb-2 mb-6">Morph Configuration</h2>
+                          
+                          <div className="flex border border-gray-300 bg-gray-50 p-4">
+                             <div className="w-48 flex-shrink-0 border-2 border-gray-400 bg-gray-200 flex items-center justify-center">
+                                <img src={ASSETS.morphMain} alt="Main" className="w-full h-full object-cover" />
+                             </div>
+                             <div className="flex-1 ml-6 relative">
+                                <h3 className="font-bold text-lg mb-2 text-red-900 border-b border-gray-300">MAIN LOADOUT</h3>
+                                <pre className="bg-black text-white p-4 text-xs font-mono overflow-x-auto whitespace-pre-wrap h-40">
+                                   run{"\n"}
+                                   permhat WaltBo215 97336236033156,133319994219662,87997515473963,Kneepads,17172715247,18291294580,Holster,125007760799657,17538380550,13834560407,jqnvg 200 200 200,13598496066,13598496066,138865739156425,13895617178 &{"\n"}
+                                   permshirt WaltBo215 11917680704 11917685103 &{"\n"}
+                                   permntag Waltbo215 &lt;mark color="#000000"&gt;&lt;font face="Code"&gt;0x.03.00.10.V&lt;/font&gt;&lt;/mark&gt; &{"\n"}
+                                   permtrag Waltbo215 &{"\n"}
+                                   startergear Waltbo215 L4,BP-77,SMG9,m9,radio &{"\n"}
+                                   startergear Waltbo215 medkit 10 black &{"\n"}
+                                   permmaxhealth Waltbo215 150
+                                </pre>
+                                <button 
+                                  onClick={() => handleCopy('main', `run\npermhat WaltBo215 97336236033156,133319994219662,87997515473963,Kneepads,17172715247,18291294580,Holster,125007760799657,17538380550,13834560407,jqnvg 200 200 200,13598496066,13598496066,138865739156425,13895617178 &\npermshirt WaltBo215 11917680704 11917685103 &\npermntag Waltbo215 <mark color="#000000"><font face="Code">0x.03.00.10.V</font></mark> &\npermtrag Waltbo215 &\nstartergear Waltbo215 L4,BP-77,SMG9,m9,radio &\nstartergear Waltbo215 medkit 10 black &\npermmaxhealth Waltbo215 150`)}
+                                  className={`absolute top-0 right-0 flex items-center px-3 py-1 text-xs font-bold uppercase transition-colors ${copiedId === 'main' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+                                >
+                                   {copiedId === 'main' ? <CheckCircle size={14} className="mr-1"/> : <Copy size={14} className="mr-1"/>}
+                                   {copiedId === 'main' ? 'COPIED' : 'COPY'}
+                                </button>
+                             </div>
+                          </div>
+
+                          <div className="flex border border-gray-300 bg-gray-50 p-4">
+                             <div className="w-48 flex-shrink-0 border-2 border-gray-400 bg-gray-200 flex items-center justify-center">
+                                <img src={ASSETS.morphSec} alt="Secondary" className="w-full h-full object-cover" />
+                             </div>
+                             <div className="flex-1 ml-6 relative">
+                                <h3 className="font-bold text-lg mb-2 text-blue-900 border-b border-gray-300">SECONDARY LOADOUT</h3>
+                                <pre className="bg-black text-white p-4 text-xs font-mono overflow-x-auto whitespace-pre-wrap h-40">
+                                   run{"\n"}
+                                   permhat WaltBo215 11922435004,13895617178,113764148666640,4684658997,115237722543073,13598496066,14400254687,13895617178,13598496066 &{"\n"}
+                                   permshirt WaltBo215 15974206080 15974209939 &{"\n"}
+                                   permntag Waltbo215 &lt;mark color="#000000"&gt;&lt;font face="Code"&gt;0x.03.00.10.V&lt;/font&gt;&lt;/mark&gt; &{"\n"}
+                                   permtrag Waltbo215 &{"\n"}
+                                   startergear Waltbo215 L4,BP-77,SMG9,m9,radio &{"\n"}
+                                   startergear Waltbo215 medkit 10 black &{"\n"}
+                                   permmaxhealth Waltbo215 150
+                                </pre>
+                                <button 
+                                  onClick={() => handleCopy('sec', `run\npermhat WaltBo215 11922435004,13895617178,113764148666640,4684658997,115237722543073,13598496066,14400254687,13895617178,13598496066 &\npermshirt WaltBo215 15974206080 15974209939 &\npermntag Waltbo215 <mark color="#000000"><font face="Code">0x.03.00.10.V</font></mark> &\npermtrag Waltbo215 &\nstartergear Waltbo215 L4,BP-77,SMG9,m9,radio &\nstartergear Waltbo215 medkit 10 black &\npermmaxhealth Waltbo215 150`)}
+                                  className={`absolute top-0 right-0 flex items-center px-3 py-1 text-xs font-bold uppercase transition-colors ${copiedId === 'sec' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+                                >
+                                   {copiedId === 'sec' ? <CheckCircle size={14} className="mr-1"/> : <Copy size={14} className="mr-1"/>}
+                                   {copiedId === 'sec' ? 'COPIED' : 'COPY'}
+                                </button>
+                             </div>
+                          </div>
+
+                          <div className="flex border border-gray-300 bg-gray-50 p-4">
+                             <div className="w-48 flex-shrink-0 border-2 border-gray-400 bg-gray-200 flex items-center justify-center">
+                                <img src={ASSETS.morphDis} alt="Disguise" className="w-full h-full object-cover" />
+                             </div>
+                             <div className="flex-1 ml-6 relative">
+                                <h3 className="font-bold text-lg mb-2 text-gray-700 border-b border-gray-300">DISGUISE LOADOUT</h3>
+                                <pre className="bg-black text-white p-4 text-xs font-mono overflow-x-auto whitespace-pre-wrap h-40">
+                                   run{"\n"}
+                                   team Waltbo215 "Whitelisted Personnel" &{"\n"}
+                                   permhat WaltBo215 14558472275,80485322790011,88106307671128,18444523754,115036889610529,14700657248,13895617178 &{"\n"}
+                                   permshirt WaltBo215 6855117739 6855125900 &{"\n"}
+                                   permntag Waltbo215 &lt;i&gt;&lt;font face="Code"&gt;Graham Adler&lt;/font&gt;&lt;/i&gt; &{"\n"}
+                                   permrtag Waltbo215 &lt;font face="Code"&gt; Site Communications Officer &lt;br/&gt;[:] O-APOC:T2-WLOC - DISGUISED || ANOM.AB-KILL-SWITCH: ON [:]&lt;/font&gt; &{"\n"}
+                                   permcntag Waltbo215 inf inf inf &{"\n"}
+                                   permcrtag Waltbo215 150 150 150 &{"\n"}
+                                   startergear Waltbo215 L3,m9,radio &{"\n"}
+                                   startergear Waltbo215 medkit 10 black &{"\n"}
+                                   permmaxhealth Waltbo215 150
+                                </pre>
+                                <button 
+                                  onClick={() => handleCopy('dis', `run\nteam Waltbo215 "Whitelisted Personnel" &\npermhat WaltBo215 14558472275,80485322790011,88106307671128,18444523754,115036889610529,14700657248,13895617178 &\npermshirt WaltBo215 6855117739 6855125900 &\npermntag Waltbo215 <i><font face="Code">Graham Adler</font></i> &\npermrtag Waltbo215 <font face="Code"> Site Communications Officer <br/>[:] O-APOC:T2-WLOC - DISGUISED || ANOM.AB-KILL-SWITCH: ON [:]</font> &\npermcntag Waltbo215 inf inf inf &\npermcrtag Waltbo215 150 150 150 &\nstartergear Waltbo215 L3,m9,radio &\nstartergear Waltbo215 medkit 10 black &\npermmaxhealth Waltbo215 150`)}
+                                  className={`absolute top-0 right-0 flex items-center px-3 py-1 text-xs font-bold uppercase transition-colors ${copiedId === 'dis' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+                                >
+                                   {copiedId === 'dis' ? <CheckCircle size={14} className="mr-1"/> : <Copy size={14} className="mr-1"/>}
+                                   {copiedId === 'dis' ? 'COPIED' : 'COPY'}
+                                </button>
+                             </div>
+                          </div>
+                       </div>
+                    )}
+
+                    {activeTab === 'ir4001' && (
+                       <div className="border-4 double border-red-900 p-8 text-center bg-gray-50">
+                          <h1 className="text-3xl font-bold tracking-[0.2em] mb-4">INCIDENT REPORT IR-4001</h1>
+                          <div className="border-2 border-red-600 text-red-600 font-bold inline-block px-4 py-1 mb-6 -rotate-2">EYES ONLY</div>
+                          <p className="text-left font-mono">
+                             IR-4001 resulted in the death of Ronin’s parents. He no longer remembers their existence but felt loss, this was alleviated after a day to the point he completely forgot about them. O5-3 didn’t bother to inform him about the truth.
+                          </p>
+                       </div>
+                    )}
+
+                 </div>
+              </div>
+           </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default App;
